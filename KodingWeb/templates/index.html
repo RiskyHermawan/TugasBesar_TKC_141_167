@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Pola CBIR</title>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+  <!-- Icons -->
+  <link href="{{url_for('static', filename='assets/js/plugins/nucleo/css/nucleo.css')}}" rel="stylesheet" />
+  <link href="{{url_for('static', filename='assets/js/plugins/@fortawesome/fontawesome-free/css/all.min.css')}}" rel="stylesheet" />
+  <!-- CSS Files -->
+  <link href="{{url_for('static', filename='assets/css/argon-dashboard.css')}}" rel="stylesheet" />
+  <style>.copyleft {display:inline-block; transform: rotate(180deg);}</style>
+</head>
+{% block content %}
+<body class="">
+  <div class="main-content">
+    <!-- Navbar -->
+    <nav class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
+      <div class="container-fluid">
+        <!-- Brand -->
+        <span class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block">Content Based Image Retrival</span>
+        </div>
+      </div>
+    </nav>
+    <!-- End Navbar -->
+    <!-- Header -->
+    <div class="header bg-gradient-primary pb-8 pt-5 pt-md-8">
+      <div class="container-fluid">
+        <div class="header-body">
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid mt--7">
+      <div class="row">
+        <!-- pick picture -->
+        <div class="col-xl-4">
+          <div class="card shadow">
+            <div class="card-header bg-transparent">
+              <div class="row align-items-center">
+                <div class="col">
+                  <h6 class="text-uppercase text-muted ls-1 mb-1"><i class="ni ni-folder-17"></i> Unggah</h6>
+                  <h2 class="mb-0">
+                    {% if aw == 2 %}
+                      Ambil Gambar
+                    {% else %}
+                      Gambar Anda
+                    {% endif %}
+                    </h2>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="box-body">
+                <div class="form-group">
+                  <form action="/search" method="post" enctype="multipart/form-data">
+                  <div class="text-center">
+                    {% if aw == 2 %}
+                      <input type="file" required name="image" accept="image/*" style="margin-bottom: 30px; margin-top: 20px;">
+                      <button type="submit" class="btn btn-primary my-4" value="Submit"><i class="ni ni-send"></i> Cari Gambar</button>
+                      <button type="reset"  class="btn btn-danger my-4" value="Reset"><i class="ni ni-fat-remove"></i> Reset</button>
+                    {% else %}
+                    {% for turget in target %}
+                    <div class="row">
+                      <div class="col-xl-12">
+                        <img class="img-fluid" src="static/tmp/{{turget}}">
+                    </div>
+                    </div>
+                    {% endfor %}
+                      <a href="/" class="btn btn-primary my-4"><i class="ni ni-button-power"></i> Cari lagi</a>
+                    {% endif %}
+                </div>
+                </form>
+                </div>
+              </div>
+            </form>
+            </div>
+          </div><br>
+          <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">Dataset Tersedia</h5>
+                      <span class="h2 font-weight-bold mb-0">{{ count }} Gambar</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-info text-white rounded-circle shadow">
+                        <i class="fas fa-chart-bar"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% if aw == 1 %}
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">Nilai Terbaik</h5>
+                      <span class="h2 font-weight-bold mb-0">{{ nearest[-0:-6] }}</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-success text-white rounded-circle shadow">
+                        <i class="ni ni-chart-bar-32"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">Akurasi</h5>
+                      <span class="h2 font-weight-bold mb-0">{{ akurasi }} %</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                        <i class="fas fa-crosshairs"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">Presisi</h5>
+                      <span class="h2 font-weight-bold mb-0">{{ presisi }} %</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
+                        <i class="fas fa-percentage"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">F1 Score</h5>
+                      <span class="h2 font-weight-bold mb-0">{{ f1 }} %</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+                        <i class="fas fa-rocket"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">Recall</h5>
+                      <span class="h2 font-weight-bold mb-0">{{ rekal }} %</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-primary text-white rounded-circle shadow">
+                        <i class="fas fa-phone"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+        </div>
+
+        <!--end of pick picture -->
+
+        <div class="col-xl-8 mb-5 mb-xl-0">
+          <div class="card bg-gradient-default shadow">
+            <div class="card-header bg-transparent">
+              <div class="row align-items-center">
+                <div class="col">
+                  <h6 class="text-uppercase text-light ls-1 mb-2"><i class="ni ni-tv-2"></i> Hasil</h6>
+                  <h2 class="text-white mb-0">Hasil Pencarian</h2>
+                </div>
+              </div>
+            </div>
+            <div class="card-body" {% if aw == 2 %} style="height: 350px" {% endif %}>
+                {% if aw == 2 %}
+                  <p class="text-white">Masih <b>Belum</b> ada hasil,<br><b>Karena belum dicari</b> <i class="ni ni-user-run"></i><br>Kalau sudah <b>pasti bakalan</b> muncul kok ...</p>
+                {% else %}
+                <div class="table-responsive">
+                <table class="table align-items-center table-flush text-white">
+                  <thead class="thead-light">
+                    <tr>
+                      <th scope="col">No.</th>
+                      <th scope="col">Gambar</th>
+                      <th scope="col">Nilai</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% set count = namespace(value=1) %}
+                      {% for image_name in image_names %}
+                        <tr>
+                          <td>{{ count.value }}</td>
+                          {% set count.value = count.value + 1 %}
+                          <td><img class="img-responsive" src="static/temp/{{image_name}}" style="width:250px;height:150px"></td>
+                          <td>{{image_name[-0:-6]}}</td>
+                        </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+        </div>
+        {% endblock content %}
+      </div>
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="row align-items-center justify-content-xl-between">
+          <div class="col-xl-6">
+            <div class="copyright text-center text-xl-left text-muted">
+              &copy; 2021 <a href="https://www.creative-tim.com" class="font-weight-bold ml-1" target="_blank">Creative Tim</a>
+            </div>
+          </div>
+          <div class="col-xl-6">
+            <ul class="nav nav-footer justify-content-center justify-content-xl-end">
+              <li class="nav-item">
+                <a href="https://github.com/RiskyHermawan" class="nav-link" target="_blank"><span class="copyleft">&copy;</span> 2021 Copylefted by <b>r1_sky teams</b></a>
+              </li>
+              <li class="nav-item">
+                <a href="https://github.com/RiskyHermawan/NetNot" class="nav-link" target="_blank">GitHub Repo</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
